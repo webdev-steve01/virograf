@@ -3,33 +3,14 @@ import { auth } from "../Firebase";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+
 function Welcome() {
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/");
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
   }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen w-full">
-        {/* < !--From Uiverse.io by alexruix-- >  */}
-
-        <div className="loader">
-          <span className="loader-text">loading</span>
-          <span className="load"></span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen">
@@ -41,7 +22,7 @@ function Welcome() {
           <span className="text-[#09F104]">best results</span>
         </p>
         <button
-          onClick={() => router.push("/welcome/selection")}
+          onClick={() => router.push("/welcome/onboarding")}
           className="bg-[#09F104] text-black font-bold p-2 rounded-[13px]"
         >
           Let's Go!

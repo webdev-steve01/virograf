@@ -1,29 +1,34 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "@/app/Firebase";
 import Image from "next/image";
 import startup from "@/public/startup.svg";
 import { useRouter } from "next/navigation";
-
-const industries = ["Tech", "Finance", "Healthcare", "Education", "Media"];
-
-const skills = [
-  "Software Development",
-  "Marketing and Growth",
-  "Sales & Business Development",
-  "Product management",
-  "Design & UX",
-  "Operations & Logistics",
-  "Legal & Compliance",
-  "Other",
-];
+import { updateUser } from "@/utils/fetchFunctions";
+import {
+  industries,
+  locationArray,
+  financialContributionArray,
+  founderStatusArray,
+  skills,
+} from "@/utils/Data";
 
 function About() {
   const [industriesChosen, setIndustriesChosen] = useState<string[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([
+    "Software Development",
+  ]);
   const [skillsOpen, setSkillsOpen] = useState<boolean>(false);
+  const [location, setLocation] = useState<string>("Remote only");
+  const [founderStatus, setFounderStatus] =
+    useState<string>("First-time Founder");
+  const [commitmentLevel, setCommitmentLevel] = useState<string>("");
+  const [financialContribution, setFinancialContribution] = useState<string>(
+    "No personal investment, seeking external funding"
+  );
   const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const toggleIndustry = (industry: string) => {
@@ -42,11 +47,85 @@ function About() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.push("/co-founder");
-  };
+    setLoading(true);
 
+    try {
+      // 1. Get the saved partial profile from localStorage
+      const CommitmentLevel = localStorage.getItem("commitmentLevel");
+      const PersonalityTraits = localStorage.getItem("personalityTraits");
+      const currentOccupation = localStorage.getItem("currentOccupation");
+      if (!commitmentLevel && !PersonalityTraits) {
+        alert("No saved profile found. Please restart onboarding.");
+        setLoading(false);
+        return;
+      } else {
+        setCommitmentLevel(CommitmentLevel || "");
+      }
+
+      // 2. Build the final profile using data from this page + stored data
+      const fullProfile = {
+        commitmentLevel: CommitmentLevel || "",
+        industry: "Healthcare",
+        founderStatus: founderStatus || "",
+        personalityTraits: PersonalityTraits || "",
+        skills: selectedSkills,
+        financialContribution: financialContribution,
+        location: location,
+        currentOccupation: currentOccupation || "",
+        yearsOfExperience: 3,
+        preferredFounderType: "Experienced Founder (1 previous venture)",
+        preferredIndustry: "Healthcare",
+        preferredCommitmentLevel: "Full-time",
+        preferredFinancial: "Can invest $25K-$100K personally",
+        preferredPersonalityTraits: ["Risk-taker", "Visionary"],
+        preferredLocation: "US - West Coast",
+        preferredSkills: ["Operations", "Finance"],
+      };
+
+      const accessToken = localStorage.getItem("token");
+      if (!accessToken) {
+        alert("Session expired. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      // 3. Send the profile to the API
+      const response = await updateUser(
+        accessToken,
+        fullProfile.commitmentLevel,
+        fullProfile.industry,
+        fullProfile.founderStatus,
+        fullProfile.personalityTraits,
+        fullProfile.skills,
+        fullProfile.financialContribution,
+        fullProfile.location,
+        fullProfile.currentOccupation,
+        fullProfile.yearsOfExperience,
+        fullProfile.preferredFounderType,
+        fullProfile.preferredIndustry,
+        fullProfile.preferredCommitmentLevel,
+        fullProfile.preferredFinancial,
+        fullProfile.preferredPersonalityTraits,
+        fullProfile.preferredLocation,
+        fullProfile.preferredSkills
+      );
+      if (response.statusCode !== 200) {
+        throw new Error(response.error);
+      } else {
+        alert("Profile submitted successfully!");
+        localStorage.removeItem("commitmentLevel");
+        localStorage.removeItem("personalityTraits");
+        localStorage.removeItem("currentOccupation");
+      }
+    } catch (error: any) {
+      console.error("Error submitting profile:", error);
+      alert(error.message || "Failed to submit profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div>
       <section className="flex justify-between p-2 items-start">
@@ -119,13 +198,16 @@ function About() {
                 <select
                   id="Location"
                   name="Location"
+                  value={location}
+                  // defaultValue="select a location"
+                  onChange={(e) => setLocation(e.target.value)}
                   className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
                 >
-                  <option value="Edo">Edo</option>
-                  <option value="Lagos">Lagos</option>
-                  <option value="Ogun">Ogun</option>
-                  <option value="Port Harcourt">Port Harcourt</option>
-                  <option value="Abuja">Abuja</option>
+                  {locationArray.map((location) => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -142,15 +224,20 @@ function About() {
                   htmlFor="FirstTimeFounder"
                   className="text-[1em] font-semibold"
                 >
-                  Are you a first time founder?
+                  How do you intend to gather funds for your startup?
                 </label>
                 <select
                   id="FirstTimeFounder"
                   name="FirstTimeFounder"
+                  value={financialContribution}
+                  onChange={(e) => setFinancialContribution(e.target.value)}
                   className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
                 >
-                  <option value="Yes">Yes</option>
-                  <option value="No">No, I have some experience</option>
+                  {financialContributionArray.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -231,18 +318,15 @@ function About() {
               <select
                 id="PreviousStartupOwner"
                 name="PreviousStartupOwner"
+                value={founderStatus}
+                onChange={(e) => setFounderStatus(e.target.value)}
                 className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
               >
-                <option value="Yes, successfully exited">
-                  Yes, successfully exited
-                </option>
-                <option value="Yes, but it failed">Yes, but it failed</option>
-                <option value="Currently running a startup">
-                  Currently running a startup
-                </option>
-                <option value="No, this is my first time">
-                  No, this is my first time
-                </option>
+                {founderStatusArray.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="relative w-full overflow-hidden">
@@ -327,7 +411,9 @@ function About() {
             type="submit"
             className="bg-[#09F104] max-w-[400px] font-semibold text-white p-2  min-w-[200px] rounded-[13px] m-auto"
           >
-            <p className="text-[1.2em]">Next</p>
+            <p className="text-[1.2em]">
+              {loading ? "Loading..." : "Continue"}
+            </p>
           </button>
         </form>
       </section>

@@ -14,6 +14,8 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { addDoc, collection } from "firebase/firestore";
+import { newUser } from "../(interface)/Interface";
+import Link from "next/link";
 
 const registerUser = async (
   firstName: string,
@@ -22,17 +24,27 @@ const registerUser = async (
   password: string
 ) => {
   try {
-    await fetch("https://virograf-backend.onrender.com", {
-      method: "POST",
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password,
-      }),
-    });
+    const response = await fetch(
+      "https://virograf-backend.onrender.com/auth/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ firstName, lastName, email, password }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong");
+    }
+
+    return data;
   } catch (err) {
-    console.log(err);
+    console.error("Registration failed:", err);
+    throw err;
   }
 };
 
@@ -44,7 +56,8 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   // * handling all my use sates
@@ -63,68 +76,55 @@ function SignUp() {
   };
 
   // * I am using firebase to check if the user is already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/welcome");
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
 
   // * my sign in functions
-
-  // * I am using firebase to create an account with email and password
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission logic here
     setIsCreatingAccount(true);
-    if (isChecked === false) {
+
+    if (!isChecked) {
       alert("Please agree to the terms and conditions");
+      setIsCreatingAccount(false);
       return;
     }
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters long");
+
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long");
+      setIsCreatingAccount(false);
       return;
     }
-    if (firstName === "" || lastName === "") {
+
+    if (!firstName || !lastName) {
       alert("Please enter first name and last name");
+      setIsCreatingAccount(false);
       return;
     }
-    if (email === "" && password === "") {
+
+    if (!email || !password) {
       alert("Please enter email and password");
+      setIsCreatingAccount(false);
       return;
     }
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        alert("Account created successfully");
-        addDoc(collection(db, "users"), {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
+
+    try {
+      await registerUser(firstName, lastName, email, password)
+        .then((data: newUser) => {
+          localStorage.setItem("token", data.accessToken);
+          router.push("/welcome");
         })
-          .then(() => {
-            alert("User added to database successfully");
-            router.push("/welcome");
-          })
-          .catch((error) => {
-            alert(error.message);
-          });
-      })
-      .catch((error) => {
-        alert(error.message);
-      })
-      .finally(() => {
-        setIsCreatingAccount(false);
-        setEmail("");
-        setPassword("");
-        setFirstName("");
-        setLastName("");
-        setIsChecked(false);
-      });
+        .catch((error) => {
+          setError(error.message); // This will show the backend error like password requirements
+          console.log(error.message);
+        });
+    } catch (err: any) {
+      console.log(err); // This will show the backend error like password requirements
+    } finally {
+      setIsCreatingAccount(false);
+    }
+  };
+
+  const logIn = () => {
+    router.push("/login");
   };
 
   // * I am using firebase to sign in with google
@@ -155,6 +155,17 @@ function SignUp() {
     <section className="p-3 flex flex-col main">
       <section className="sided"></section>
       <section className="max-w-[700px] m-auto">
+        <section>
+          {error !== "" ? (
+            <div>
+              <p className="text-red-600 font-bold text-center max-w-[500px]">
+                {error}
+              </p>
+            </div>
+          ) : (
+            ""
+          )}
+        </section>
         <section className="flex justify-between items-center">
           <article>
             <h1 className="text-[1.5em] font-bold create-account">
@@ -162,7 +173,10 @@ function SignUp() {
             </h1>
             <p>
               Already have an account?{" "}
-              <span className="text-[#09F104] underline cursor-pointer">
+              <span
+                onClick={logIn}
+                className="text-[#09F104] underline cursor-pointer"
+              >
                 {" "}
                 Sign in
               </span>

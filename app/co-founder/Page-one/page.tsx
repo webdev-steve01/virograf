@@ -197,6 +197,55 @@ function page() {
             </option>
           </select>
         </section>
+        <section>
+          <label htmlFor="financial">
+            What is your current financial situation and level of financial
+            commitment to the startup?
+          </label>
+          <select
+            id="financial"
+            name="financial"
+            // value={workPreference}
+            // onChange={(e) => setWorkPreference(e.target.value)}
+            className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md  appearance-none focus:outline-none"
+          >
+            <option value="Artificial Intelligence ">
+              I can financially invest in the startup
+            </option>
+            <option value="Cloud computing">
+              I cannot invest financially but can contribute skills and time
+            </option>
+            <option value="Cybersecurity">
+              I expect my co-founder to invest financially
+            </option>
+            <option value="Cybersecurity">
+              I am open to discussing financial contributions
+            </option>
+          </select>
+        </section>
+        <section>
+          <label htmlFor="financial">
+            How do you plan to share equity with your co-founder?
+          </label>
+          <select
+            id="financial"
+            name="financial"
+            // value={workPreference}
+            // onChange={(e) => setWorkPreference(e.target.value)}
+            className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md  appearance-none focus:outline-none"
+          >
+            <option value="Equal">Equal split (50/50)</option>
+            <option value="Cloud computing">
+              Based on contributions (time, skills, investment, etc.)
+            </option>
+            <option value="Cybersecurity">
+              I expect my co-founder to invest financially
+            </option>
+            <option value="Cybersecurity">
+              I am open to discussing financial contributions
+            </option>
+          </select>
+        </section>
       </form>
     </div>
   );
