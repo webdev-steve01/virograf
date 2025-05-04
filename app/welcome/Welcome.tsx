@@ -1,5 +1,5 @@
 "use client";
-import { auth } from "../Firebase";
+import { auth } from "../../utils/Firebase";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -19,11 +19,11 @@ function Welcome() {
         <h1 className="font-bold text-[1.5rem]">Welcome to Virofund!</h1>
         <p className=" text-[1.2rem] max-w-[450px]">
           We’ll like to know you better in order to give you the{" "}
-          <span className="text-[#09F104]">best results</span>
+          <span className="text-[#10b981]">best results</span>
         </p>
         <button
           onClick={() => router.push("/welcome/onboarding")}
-          className="bg-[#09F104] text-black font-bold p-2 rounded-[13px]"
+          className="bg-[#10b981] text-black font-bold p-2 rounded-[13px]"
         >
           Let's Go!
         </button>

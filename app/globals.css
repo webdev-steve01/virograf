@@ -13,8 +13,27 @@ input {
   border-radius: 13px;
 }
 
+.other-side {
+  display: none;
+}
+
 input:focus {
   outline: none;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    /* opacity: 0; */
+  }
+  to {
+    transform: translateY(0);
+    /* opacity: 1; */
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
 }
 
 @media screen and (min-width: 550px) {
@@ -46,6 +65,9 @@ input:focus {
   .lets-go button {
     font-size: 1.2em;
   }
+  .log-in {
+    min-width: 450px;
+  }
 }
 
 @media screen and (min-width: 1000px) {
@@ -61,7 +83,7 @@ input:focus {
     height: 100vh;
     margin: 0;
     /* border: 1px solid black; */
-    background-color: #09f104;
+    background-color: #10b981;
   }
   .auth {
     flex-direction: row;
@@ -80,124 +102,53 @@ input:focus {
   }
 }
 
-/*  *Loader */
-/* From Uiverse.io by alexruix */
-.loader {
-  width: 80px;
-  height: 50px;
-  position: relative;
+@media screen and (min-width: 1250px) {
+  .other-side {
+    display: flex;
+    background-image: url("../public/Rectangle.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+    height: 100vh;
+  }
 }
 
-.loader-text {
-  position: absolute;
-  top: 0;
-  padding: 0;
-  margin: 0;
-  color: #2d2a32;
-  animation: text_713 3.5s ease both infinite;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
+/* From Uiverse.io by barisdogansutcu */
+svg {
+  width: 3.25em;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
 }
 
-.load {
-  background-color: #09f104;
-  border-radius: 50px;
-  display: block;
-  height: 16px;
-  width: 16px;
-  bottom: 0;
-  position: absolute;
-  transform: translateX(64px);
-  animation: loading_713 3.5s ease both infinite;
+circle {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
 }
 
-.load::before {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: #fafdf6;
-  border-radius: inherit;
-  animation: loading2_713 3.5s ease both infinite;
+@keyframes rotate4 {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes text_713 {
+@keyframes dash4 {
   0% {
-    letter-spacing: 1px;
-    transform: translateX(0px);
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
   }
 
-  40% {
-    letter-spacing: 2px;
-    transform: translateX(26px);
-  }
-
-  80% {
-    letter-spacing: 1px;
-    transform: translateX(32px);
-  }
-
-  90% {
-    letter-spacing: 2px;
-    transform: translateX(0px);
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
   }
 
   100% {
-    letter-spacing: 1px;
-    transform: translateX(0px);
-  }
-}
-
-@keyframes loading_713 {
-  0% {
-    width: 16px;
-    transform: translateX(0px);
-  }
-
-  40% {
-    width: 100%;
-    transform: translateX(0px);
-  }
-
-  80% {
-    width: 16px;
-    transform: translateX(64px);
-  }
-
-  90% {
-    width: 100%;
-    transform: translateX(0px);
-  }
-
-  100% {
-    width: 16px;
-    transform: translateX(0px);
-  }
-}
-
-@keyframes loading2_713 {
-  0% {
-    transform: translateX(0px);
-    width: 16px;
-  }
-
-  40% {
-    transform: translateX(0%);
-    width: 80%;
-  }
-
-  80% {
-    width: 100%;
-    transform: translateX(0px);
-  }
-
-  90% {
-    width: 80%;
-    transform: translateX(15px);
-  }
-
-  100% {
-    transform: translateX(0px);
-    width: 16px;
+    stroke-dashoffset: -125px;
   }
 }

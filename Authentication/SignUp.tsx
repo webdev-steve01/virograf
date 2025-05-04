@@ -7,14 +7,14 @@ import eyeOff from "@/public/eye-off-svgrepo-com.svg";
 import Google from "@/public/google.svg";
 import apple from "@/public/apple.svg";
 import { useRouter } from "next/navigation";
-import { auth, provider, db } from "@/app/Firebase";
+import { auth, provider, db } from "@/utils/Firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
 import { addDoc, collection } from "firebase/firestore";
-import { newUser } from "../(interface)/Interface";
+import { newUser } from "../app/(interface)/Interface";
 import Link from "next/link";
 
 const registerUser = async (
@@ -110,7 +110,7 @@ function SignUp() {
       await registerUser(firstName, lastName, email, password)
         .then((data: newUser) => {
           localStorage.setItem("token", data.accessToken);
-          router.push("/welcome");
+          router.push("/login");
         })
         .catch((error) => {
           setError(error.message); // This will show the backend error like password requirements
@@ -175,7 +175,7 @@ function SignUp() {
               Already have an account?{" "}
               <span
                 onClick={logIn}
-                className="text-[#09F104] underline cursor-pointer"
+                className="text-[#10b981] underline cursor-pointer"
               >
                 {" "}
                 Sign in
@@ -260,7 +260,7 @@ function SignUp() {
               </div>
               <button
                 type="submit"
-                className="bg-[#09F104] text-white p-2 rounded-[13px]"
+                className="bg-[#10b981] text-white p-2 rounded-[13px]"
               >
                 {isCreatingAccount ? (
                   <p>Creating Account...</p>

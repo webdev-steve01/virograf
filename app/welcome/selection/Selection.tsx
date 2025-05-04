@@ -12,7 +12,7 @@ import {
   getDocs,
   updateDoc,
 } from "firebase/firestore";
-import { db, auth } from "@/app/Firebase";
+import { db, auth } from "@/utils/Firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -84,7 +84,7 @@ function Selection() {
         <div className="flex gap-2">
           <div
             className={`${
-              type !== "" ? "bg-[#09F104]" : "bg-[#C6C6C8]"
+              type !== "" ? "bg-[#10b981]" : "bg-[#C6C6C8]"
             } h-[5px] w-[50px] rounded-2xl`}
           ></div>
           <div className="bg-[#C6C6C8] h-[5px] w-[50px] rounded-2xl"></div>
@@ -161,7 +161,7 @@ function Selection() {
             type="button"
             onClick={handleNext}
             id="next"
-            className="font-bold bg-[#09F104] w-[200px] py-3 rounded-full"
+            className="font-bold bg-[#10b981] w-[200px] py-3 rounded-full"
           >
             {loading ? "Loading..." : "Next"}
           </button>

@@ -3,7 +3,7 @@ export const updateUser = async (
   commitmentLevel: string,
   industry: string,
   founderStatus: string,
-  personalityTraits: string,
+  personalityTraits: Array<string>,
   skills: Array<string>,
   financialContribution: string,
   location: string,
@@ -30,7 +30,7 @@ export const updateUser = async (
           commitmentLevel,
           industry,
           founderStatus,
-          personalityTraits: [personalityTraits],
+          personalityTraits,
           skills,
           financialContribution,
           location,
@@ -47,14 +47,27 @@ export const updateUser = async (
       }
     );
 
+    // ✅ Check for server-level error
     const data = await response.json();
-
     if (!response.ok) {
-      return data;
+      return {
+        success: false,
+        status: response.status,
+        message: data.message || "Something went wrong on the server",
+      };
     }
 
-    return data; // only successful login reaches here
-  } catch (err) {
-    console.error("Error updating user type by email:", err);
+    return {
+      success: true,
+      status: response.status,
+      data,
+    };
+  } catch (error: any) {
+    // ✅ Network error (e.g., no internet, fetch failure)
+    return {
+      success: false,
+      status: 0,
+      message: error.message || "Network error: failed to reach server",
+    };
   }
 };

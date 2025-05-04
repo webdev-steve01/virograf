@@ -1,7 +1,5 @@
 "use client";
-import { useState, useEffect, use } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, db } from "@/app/Firebase";
+import { useState } from "react";
 import Image from "next/image";
 import startup from "@/public/startup.svg";
 import { useRouter } from "next/navigation";
@@ -15,29 +13,20 @@ import {
 } from "@/utils/Data";
 
 function About() {
-  const [industriesChosen, setIndustriesChosen] = useState<string[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([
-    "Software Development",
-  ]);
+  const [industriesChosen, setIndustriesChosen] = useState<string>("");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [skillsOpen, setSkillsOpen] = useState<boolean>(false);
-  const [location, setLocation] = useState<string>("Remote only");
-  const [founderStatus, setFounderStatus] =
-    useState<string>("First-time Founder");
-  const [commitmentLevel, setCommitmentLevel] = useState<string>("");
-  const [financialContribution, setFinancialContribution] = useState<string>(
-    "No personal investment, seeking external funding"
-  );
-  const [open, setOpen] = useState<boolean>(false);
+  const [location, setLocation] = useState<string>("");
+  const [founderStatus, setFounderStatus] = useState<string>("");
+  const [experience, setExperience] = useState<string>("");
+  const [AreaOfSpecialization, setAreaOfSpecialization] = useState<string>("");
+  const [financialContribution, setFinancialContribution] =
+    useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
-
-  const toggleIndustry = (industry: string) => {
-    setIndustriesChosen((prev) =>
-      prev.includes(industry)
-        ? prev.filter((item) => item !== industry)
-        : [...prev, industry]
-    );
-  };
 
   const toggleSkill = (skill: string) => {
     if (selectedSkills.includes(skill)) {
@@ -51,80 +40,53 @@ function About() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      // 1. Get the saved partial profile from localStorage
-      const CommitmentLevel = localStorage.getItem("commitmentLevel");
-      const PersonalityTraits = localStorage.getItem("personalityTraits");
-      const currentOccupation = localStorage.getItem("currentOccupation");
-      if (!commitmentLevel && !PersonalityTraits) {
-        alert("No saved profile found. Please restart onboarding.");
-        setLoading(false);
-        return;
-      } else {
-        setCommitmentLevel(CommitmentLevel || "");
-      }
-
-      // 2. Build the final profile using data from this page + stored data
-      const fullProfile = {
-        commitmentLevel: CommitmentLevel || "",
-        industry: "Healthcare",
-        founderStatus: founderStatus || "",
-        personalityTraits: PersonalityTraits || "",
-        skills: selectedSkills,
-        financialContribution: financialContribution,
-        location: location,
-        currentOccupation: currentOccupation || "",
-        yearsOfExperience: 3,
-        preferredFounderType: "Experienced Founder (1 previous venture)",
-        preferredIndustry: "Healthcare",
-        preferredCommitmentLevel: "Full-time",
-        preferredFinancial: "Can invest $25K-$100K personally",
-        preferredPersonalityTraits: ["Risk-taker", "Visionary"],
-        preferredLocation: "US - West Coast",
-        preferredSkills: ["Operations", "Finance"],
-      };
-
-      const accessToken = localStorage.getItem("token");
-      if (!accessToken) {
-        alert("Session expired. Please login again.");
-        setLoading(false);
-        return;
-      }
-
-      // 3. Send the profile to the API
-      const response = await updateUser(
-        accessToken,
-        fullProfile.commitmentLevel,
-        fullProfile.industry,
-        fullProfile.founderStatus,
-        fullProfile.personalityTraits,
-        fullProfile.skills,
-        fullProfile.financialContribution,
-        fullProfile.location,
-        fullProfile.currentOccupation,
-        fullProfile.yearsOfExperience,
-        fullProfile.preferredFounderType,
-        fullProfile.preferredIndustry,
-        fullProfile.preferredCommitmentLevel,
-        fullProfile.preferredFinancial,
-        fullProfile.preferredPersonalityTraits,
-        fullProfile.preferredLocation,
-        fullProfile.preferredSkills
-      );
-      if (response.statusCode !== 200) {
-        throw new Error(response.error);
-      } else {
-        alert("Profile submitted successfully!");
-        localStorage.removeItem("commitmentLevel");
-        localStorage.removeItem("personalityTraits");
-        localStorage.removeItem("currentOccupation");
-      }
-    } catch (error: any) {
-      console.error("Error submitting profile:", error);
-      alert(error.message || "Failed to submit profile. Please try again.");
-    } finally {
+    const accessToken = localStorage.getItem("token");
+    if (!accessToken) {
+      alert("Session expired. Please login again.");
       setLoading(false);
+      return;
     }
+    localStorage.setItem("industry", industriesChosen);
+    localStorage.setItem("location", location);
+    localStorage.setItem("financialContribution", financialContribution);
+    localStorage.setItem("founderStatus", founderStatus);
+    localStorage.setItem("skills", JSON.stringify(selectedSkills));
+    router.push("/co-founder");
+
+    //     // 3. Send the profile to the API
+    //     const response = await updateUser(
+    //       accessToken,
+    //       fullProfile.commitmentLevel,
+    //       fullProfile.industry,
+    //       fullProfile.founderStatus,
+    //       fullProfile.personalityTraits,
+    //       fullProfile.skills,
+    //       fullProfile.financialContribution,
+    //       fullProfile.location,
+    //       fullProfile.currentOccupation,
+    //       fullProfile.yearsOfExperience,
+    //       fullProfile.preferredFounderType,
+    //       fullProfile.preferredIndustry,
+    //       fullProfile.preferredCommitmentLevel,
+    //       fullProfile.preferredFinancial,
+    //       fullProfile.preferredPersonalityTraits,
+    //       fullProfile.preferredLocation,
+    //       fullProfile.preferredSkills
+    //     );
+    //     if (response.success === false) {
+    //       setError(response.message || "Failed to submit profile.");
+    //       setShowError(true);
+    //       setTimeout(() => setShowError(false), 10000); // disappears after 10 seconds
+    //     } else {
+    //       alert("Profile submitted successfully!");
+    //       router.push("/co-founder");
+    //     }
+    //   } catch (error: any) {
+    //     console.error("Error submitting profile:", error);
+    //     alert(error.message || "Failed to submit profile. Please try again.");
+    //   } finally {
+    //     setLoading(false);
+    //   }
   };
   return (
     <div>
@@ -132,8 +94,8 @@ function About() {
         <section>
           <p>Virofund</p>
           <div className="flex gap-2 w-[150px]">
-            <div className="bg-[#09F104] h-[5px] w-[20%] rounded-2xl"></div>
-            <div className="bg-[#09F104] h-[5px] w-[20%] rounded-2xl"></div>
+            <div className="bg-[#10b981] h-[5px] w-[20%] rounded-2xl"></div>
+            <div className="bg-[#10b981] h-[5px] w-[20%] rounded-2xl"></div>
             <div className="bg-[#C6C6C8] h-[5px] w-[20%] rounded-2xl"></div>
             <div className="bg-[#C6C6C8] h-[5px] w-[20%] rounded-2xl"></div>
             <div className="bg-[#C6C6C8] h-[5px] w-[20%] rounded-2xl"></div>
@@ -166,10 +128,21 @@ function About() {
                 <select
                   id="Gender"
                   name="Gender"
-                  className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                    gender ? "text-black" : "text-gray-400"
+                  }`}
                 >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
+                  <option value="" disabled hidden>
+                    select one
+                  </option>
+                  <option value="Male" className="text-black">
+                    Male
+                  </option>
+                  <option value="Female" className="text-black">
+                    Female
+                  </option>
                 </select>
               </div>
             </div>
@@ -178,13 +151,17 @@ function About() {
             <div className="flex flex-col gap-2">
               <div className="relative w-full overflow-hidden">
                 <label htmlFor="Date" className="text-[1em] font-semibold">
-                  Date
+                  Date of birth
                 </label>
                 <input
                   type="date"
                   id="Date"
                   name="date"
-                  className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                    date ? "text-black" : "text-gray-400"
+                  }`}
                 />
               </div>
             </div>
@@ -201,10 +178,19 @@ function About() {
                   value={location}
                   // defaultValue="select a location"
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                  className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                    location ? "text-black" : "text-gray-400"
+                  }`}
                 >
+                  <option value="" disabled hidden>
+                    select one
+                  </option>
                   {locationArray.map((location) => (
-                    <option key={location} value={location}>
+                    <option
+                      className="text-black"
+                      key={location}
+                      value={location}
+                    >
                       {location}
                     </option>
                   ))}
@@ -231,10 +217,15 @@ function About() {
                   name="FirstTimeFounder"
                   value={financialContribution}
                   onChange={(e) => setFinancialContribution(e.target.value)}
-                  className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                  className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                    financialContribution ? "text-black" : "text-gray-400"
+                  }`}
                 >
+                  <option value="" disabled hidden>
+                    select one
+                  </option>
                   {financialContributionArray.map((option) => (
-                    <option key={option} value={option}>
+                    <option className="text-black" key={option} value={option}>
                       {option}
                     </option>
                   ))}
@@ -248,44 +239,30 @@ function About() {
                 <label htmlFor="industry" className="text-[1em] font-semibold">
                   What industry are you working in?
                 </label>
-
-                {/* Input area */}
-                <div
-                  onClick={() => setOpen(!open)}
-                  className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md bg-white cursor-pointer flex flex-wrap gap-2 min-h-[48px] items-center"
+                <select
+                  id="FirstTimeFounder"
+                  name="FirstTimeFounder"
+                  value={industriesChosen}
+                  onChange={(e) => setIndustriesChosen(e.target.value)}
+                  className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                    industriesChosen ? "text-black" : "text-gray-400"
+                  }`}
                 >
-                  {industriesChosen.length === 0 ? (
-                    <span className="text-gray-400">Select industries...</span>
-                  ) : (
-                    industriesChosen.map((industry) => (
-                      <span
+                  <option value="" disabled hidden>
+                    select one
+                  </option>
+                  {industries.map((industry, index) => {
+                    return (
+                      <option
                         key={industry}
-                        className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm"
+                        value={industry}
+                        className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none text-black"
                       >
                         {industry}
-                      </span>
-                    ))
-                  )}
-                </div>
-
-                {/* Dropdown */}
-                {open && (
-                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {industries.map((industry) => (
-                      <div
-                        key={industry}
-                        onClick={() => toggleIndustry(industry)}
-                        className={`p-2 hover:bg-green-100 cursor-pointer ${
-                          industriesChosen.includes(industry)
-                            ? "bg-green-50"
-                            : ""
-                        }`}
-                      >
-                        {industry}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
             </div>
           </div>
@@ -300,12 +277,27 @@ function About() {
               <select
                 id="Experience"
                 name="Experience"
-                className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+                className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                  experience ? "text-black" : "text-gray-400"
+                }`}
               >
-                <option value="Less than 1 year">Less than 1 year</option>
-                <option value="1-3 years">1-3 years</option>
-                <option value="4-6 years">4-6 years</option>
-                <option value="7+ years">7+ years</option>
+                <option value="" disabled hidden>
+                  select one
+                </option>
+                <option value="Less than 1 year" className="text-black">
+                  Less than 1 year
+                </option>
+                <option value="1-3 years" className="text-black">
+                  1-3 years
+                </option>
+                <option value="4-6 years" className="text-black">
+                  4-6 years
+                </option>
+                <option value="7+ years" className="text-black">
+                  7+ years
+                </option>
               </select>
             </div>
             <div className="relative w-full overflow-hidden">
@@ -320,10 +312,15 @@ function About() {
                 name="PreviousStartupOwner"
                 value={founderStatus}
                 onChange={(e) => setFounderStatus(e.target.value)}
-                className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                  founderStatus ? "text-black" : "text-gray-400"
+                }`}
               >
+                <option value="" disabled hidden>
+                  select one
+                </option>
                 {founderStatusArray.map((status) => (
-                  <option key={status} value={status}>
+                  <option className="text-black" key={status} value={status}>
                     {status}
                   </option>
                 ))}
@@ -336,18 +333,27 @@ function About() {
               <select
                 id="role"
                 name="role"
-                className="w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none"
+                value={AreaOfSpecialization}
+                onChange={(e) => setAreaOfSpecialization(e.target.value)}
+                className={`w-full mt-1 p-2 border border-[#A1A1A1] rounded-md appearance-none focus:outline-none ${
+                  AreaOfSpecialization ? "text-black" : "text-gray-400"
+                }`}
               >
-                <option value="Technical">
+                <option value="" disabled hidden>
+                  select one
+                </option>
+                <option className="text-black" value="Technical">
                   Technical (e.g., Developer, Engineer, Data Scientist)
                 </option>
-                <option value="Business/Operations">
+                <option className="text-black" value="Business/Operations">
                   Business/Operations (e.g., CEO, Project Manager)
                 </option>
-                <option value="Creative">
+                <option className="text-black" value="Creative">
                   Creative (e.g., UI/UX Designer, Marketing, Product Designer)
                 </option>
-                <option value="Other">Other</option>
+                <option className="text-black" value="Other">
+                  Other
+                </option>
               </select>
             </div>
           </div>
@@ -409,7 +415,7 @@ function About() {
           </div>
           <button
             type="submit"
-            className="bg-[#09F104] max-w-[400px] font-semibold text-white p-2  min-w-[200px] rounded-[13px] m-auto"
+            className="bg-[#10b981] max-w-[400px] font-semibold text-white p-2  min-w-[200px] rounded-[13px] m-auto"
           >
             <p className="text-[1.2em]">
               {loading ? "Loading..." : "Continue"}

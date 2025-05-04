@@ -1,38 +1,7 @@
 "use client";
-import { auth } from "../Firebase";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
 function Cofounder() {
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/");
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen w-full">
-        {/* < !--From Uiverse.io by alexruix-- >  */}
-
-        <div className="loader">
-          <span className="loader-text">loading</span>
-          <span className="load"></span>
-        </div>
-      </div>
-    );
-  }
-  const move = () => {
-    router.push("/Page-one");
-  };
 
   return (
     <div className="h-screen">
@@ -49,7 +18,7 @@ function Cofounder() {
         </p>
         <button
           onClick={() => router.push("/co-founder/Page-one")}
-          className="bg-[#09F104] text-black font-bold p-2 rounded-[13px]"
+          className="bg-[#10b981] text-black font-bold p-2 rounded-[13px]"
         >
           Proceed
         </button>
