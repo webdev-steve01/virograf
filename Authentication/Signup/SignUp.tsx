@@ -13,9 +13,7 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
-import { addDoc, collection } from "firebase/firestore";
-import { newUser } from "../app/(interface)/Interface";
-import Link from "next/link";
+import { newUser } from "../../interface/Interface";
 
 const registerUser = async (
   firstName: string,
@@ -159,7 +157,9 @@ function SignUp() {
           {error !== "" ? (
             <div>
               <p className="text-red-600 font-bold text-center max-w-[500px]">
-                {error}
+                {error === "Failed to fetch"
+                  ? "Network Issues, try again"
+                  : error}
               </p>
             </div>
           ) : (

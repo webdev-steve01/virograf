@@ -1,10 +1,10 @@
 import React from "react";
-import Cofounder from "../../components/cofounder/Cofounder";
+import Counter from "./Counter";
 
 function page() {
   return (
     <div>
-      <Cofounder />
+      <Counter />
     </div>
   );
 }

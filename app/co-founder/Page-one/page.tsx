@@ -1,5 +1,5 @@
 import React from "react";
-import PageOne from "./PageOne";
+import PageOne from "../../../components/PageOne";
 
 function page() {
   return (

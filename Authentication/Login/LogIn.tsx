@@ -1,5 +1,4 @@
 "use client";
-import { auth } from "../utils/Firebase";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
